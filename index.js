@@ -1,10 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
-require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -13,14 +11,16 @@ const VK_API_VERSION = '2023.12.01';
 const VK_GROUP_ID = process.env.VK_GROUP_ID;
 const VK_GROUP_TOKEN = process.env.VK_GROUP_TOKEN;
 
+// Health check
 app.get('/', (req, res) => {
   res.json({ 
     status: 'ok', 
-    message: 'MoyMaster Server is running',
+    message: 'MoyMaster Server is running on Vercel',
     timestamp: new Date().toISOString()
   });
 });
 
+// Webhook для новых заявок
 app.post('/api/new-order', async (req, res) => {
   try {
     console.log('📥 Получена новая заявка:', req.body);
@@ -39,6 +39,7 @@ app.post('/api/new-order', async (req, res) => {
   }
 });
 
+// Построение текста поста
 async function buildOrderPost(id, title, description, budget, district, categoryId) {
   const categories = {
     1: 'Ремонт и строительство',
@@ -51,7 +52,7 @@ async function buildOrderPost(id, title, description, budget, district, category
   const categoryName = categories[categoryId] || 'Другое';
   const budgetText = budget ? `${budget} ₽` : 'Договорная';
   
-  return ` <b>НОВАЯ ЗАЯВКА #${id}</b>
+  return `🔨 <b>НОВАЯ ЗАЯВКА #${id}</b>
 
 📍 <b>Район:</b> ${district}
  <b>Категория:</b> ${categoryName}
@@ -66,6 +67,7 @@ ${description ? `\n📝 <b>Описание:</b>\n${description}` : ''}
  Приложение "Мой Мастер" — поиск мастеров в Барнауле`;
 }
 
+// Публикация в группу ВК
 async function postToGroup(message) {
   const url = 'https://api.vk.com/method/wall.post';
   
@@ -91,6 +93,5 @@ async function postToGroup(message) {
   return data.response.post_id;
 }
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// Экспортируем app для Vercel
+module.exports = app;
