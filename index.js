@@ -52,19 +52,21 @@ async function buildOrderPost(id, title, description, budget, district, category
   const categoryName = categories[categoryId] || 'Другое';
   const budgetText = budget ? `${budget} ₽` : 'Договорная';
   
-  return `🔨 <b>НОВАЯ ЗАЯВКА #${id}</b>
+  // Используем эмодзи вместо HTML тегов
+  return `🔨 *НОВАЯ ЗАЯВКА #${id}*
 
-📍 <b>Район:</b> ${district}
- <b>Категория:</b> ${categoryName}
-💰 <b>Бюджет:</b> ${budgetText}
+📍 *Район:* ${district}
+📋 *Категория:* ${categoryName}
+💰 *Бюджет:* ${budgetText}
 
-<b>${title}</b>
+*${title}*
 
-${description ? `\n📝 <b>Описание:</b>\n${description}` : ''}
+${description ? `📝 *Описание:*
+${description}` : ''}
 
 ━━━━━━━━━━━━━━━━
-👉 <b>Откликнуться:</b> https://vk.com/app54718493
- Приложение "Мой Мастер" — поиск мастеров в Барнауле`;
+👉 *Откликнуться:* https://vk.com/app54718493
+Приложение "Мой Мастер" — поиск мастеров в Барнауле`;
 }
 
 // Публикация в группу ВК
