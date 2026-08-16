@@ -95,5 +95,55 @@ async function postToGroup(message) {
   return data.response.post_id;
 }
 
+// Endpoint для отправки уведомлений
+app.post('/api/send-notification', async (req, res) => {
+  try {
+    console.log('📤 Получен запрос на отправку уведомления:', req.body);
+    
+    const { user_ids, message } = req.body;
+    
+    if (!user_ids || !message) {
+      return res.status(400).json({ success: false, error: 'Missing user_ids or message' });
+    }
+    
+    // Отправляем уведомление через VK API
+    const result = await sendVKNotification(user_ids, message);
+    
+    console.log('✅ Уведомление отправлено:', result);
+    res.json({ success: true, result });
+    
+  } catch (error) {
+    console.error('❌ Ошибка отправки уведомления:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Функция отправки уведомления через VK API
+async function sendVKNotification(userIds, message) {
+  const url = 'https://api.vk.com/method/messages.send';
+  
+  const params = new URLSearchParams({
+    user_ids: userIds.join(','),  // можно отправить нескольким пользователям
+    message: message,
+    random_id: Math.floor(Math.random() * 1000000),
+    access_token: process.env.VK_COMMUNITY_TOKEN,
+    v: '2023.12.01'
+  });
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params
+  });
+  
+  const data = await response.json();
+  
+  if (data.error) {
+    throw new Error(`VK API Error: ${data.error.error_msg}`);
+  }
+  
+  return data.response;
+}
+
 // Экспортируем app для Vercel
 module.exports = app;
